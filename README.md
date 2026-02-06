@@ -1,0 +1,1 @@
+YandexMusic in JS
