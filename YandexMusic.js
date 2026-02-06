@@ -19,15 +19,23 @@ class YandexMusic {
             }
             map.set(this.#liked[i].type, 1);
         }
-        let max = map.entries(this.#liked[0].type);
-        console.log(map);
+        let max = map.get(this.#allMusics[0].name)
+        for(let i = 0;i < this.#allMusics.length; ++i){
+            if(max < this.#allMusics[i]){
+                max = map.get(this.#allMusics[i].name);
+            }
+        }
+        console.log(max)
     }
     async play(str) {
         switch (str){
             case 'my wave':
                 this.#prevSelected = 'wave';
-                break;
-            case 'liekd':
+                let id = setInterval(() => {
+                    console.log(`${this.next()}`)
+                }, 1000);
+                return id;
+            case 'liked':
                 this.#prevSelected = 'liked';
                 break;
             default:
@@ -38,11 +46,22 @@ class YandexMusic {
     async next(){
         if(!this.#started) {
             this.#started = true;
-            this.play()
         }
-        console.log(`Playing ${this.#allMusics[++YandexMusic.counter].name}`);
+        console.log(`Playing ${this.#allMusics[YandexMusic.counter++].name}`);
     }
     async like(song){
+        if(!(song instanceof Music)){
+            if(typeof song === 'string'){
+                for(let i of this.#allMusics){
+                    if(i.name.includes(song)){
+                        this.#liked.push(i);
+                        this.#checkLikedTypes(song);
+                        return true;
+                    }
+                }
+            }
+            return false
+        }
         this.#liked.push(song);
         this.#checkLikedTypes(song);
     }
@@ -56,7 +75,7 @@ class Music {
     constructor(name,type){
         this.name = name;
         this.type = type;
-        switch (type) {
+        switch (type.toLowerCase()) {
             case 'bass':
                 this.color = 'blue';
                 break
@@ -66,6 +85,8 @@ class Music {
             case 'sad':
                 this.color = 'blue';
                 break;
+            case 'armenian':
+                this.color = 'red';
             default:
                 this.color = 'green';
                 break;
@@ -74,3 +95,8 @@ class Music {
 }
 
 const server = new YandexMusic();
+server.addMusic(new Music('Illusion','sad'));
+server.addMusic(new Music('Gam Gam','Armenian'))
+server.like('Gam Gam')
+server.like('Illusion');
+server.like('Illusion')
