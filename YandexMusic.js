@@ -1,28 +1,29 @@
 class YandexMusic {
     static counter = 0;
     #liked;
-    #allMusics = [];
+    #allMusics = new Set();
     #PlaylistColor;
     #started = false;
     #prevSelected = null;
     constructor() {
-        this.#liked = [];
+        this.#liked = new Set();
         this.previous = null;
         this.#PlaylistColor = 'unknown';
     }
 
     async #checkLikedTypes() {
         const map = new Map();
+
         for(let i = 0;i < this.#liked.length;i++){
-            if(map.has(this.#liked[i].type)){
-                map.set(this.#liked[i].type, map.get(this.#liked[i].type) + 1);
+            if(map.has([...this.#liked][i].type)){
+                map.set([...this.#liked][i].type, map.get([...this.#liked][i].type) + 1);
             }
-            map.set(this.#liked[i].type, 1);
+            map.set([...this.#liked][i].type, 1);
         }
-        let max = map.get(this.#allMusics[0].name)
-        for(let i = 0;i < this.#allMusics.length; ++i){
-            if(max < this.#allMusics[i]){
-                max = map.get(this.#allMusics[i].name);
+        let max  = [[...this.#liked][0].type,map.get([...this.#liked][0].type)];
+        for(let i = 0;i < this.#liked.length; ++i){
+            if(max[1] < map.get([...this.#liked][i].type)){
+                max = [[...this.#liked][i].type,map.get([...this.#liked][i].type)];
             }
         }
         console.log(max)
@@ -31,43 +32,37 @@ class YandexMusic {
         switch (str){
             case 'my wave':
                 this.#prevSelected = 'wave';
-                let id = setInterval(() => {
-                    console.log(`${this.next()}`)
+                let my_wave = setInterval(() => {
+                    this.next(this.#allMusics,0);
                 }, 1000);
-                return id;
+                return my_wave;
             case 'liked':
                 this.#prevSelected = 'liked';
-                break;
+                let liked = setInterval(() => {
+                    this.next(this.#liked,0)
+                })
+                return liked;
             default:
                 throw new Error('Unknown playlist');
             
         }
     }
-    async next(){
+    async next(playList,i = 0){
         if(!this.#started) {
             this.#started = true;
         }
-        console.log(`Playing ${this.#allMusics[YandexMusic.counter++].name}`);
+        console.log(`Playing ${this.playList[i++].name}`);
     }
     async like(song){
-        if(!(song instanceof Music)){
-            if(typeof song === 'string'){
-                for(let i of this.#allMusics){
-                    if(i.name.includes(song)){
-                        this.#liked.push(i);
-                        this.#checkLikedTypes(song);
-                        return true;
-                    }
-                }
-            }
-            return false
-        }
-        this.#liked.push(song);
+        if(!(song instanceof Music)) throw new TypeError('Invalid music type');
+        if(this.#liked.has(song)) return true;;
+        this.#liked.add(song);
         this.#checkLikedTypes(song);
     }
 
     async addMusic(song){
-        this.#allMusics.push(song);
+        if(this.#allMusics.has(song)) return;
+        this.#allMusics.add(song);
     }
 }
 
@@ -95,8 +90,6 @@ class Music {
 }
 
 const server = new YandexMusic();
-server.addMusic(new Music('Illusion','sad'));
+let illusia = new Music('Illusion','sad')
 server.addMusic(new Music('Gam Gam','Armenian'))
-server.like('Gam Gam')
-server.like('Illusion');
-server.like('Illusion')
+server.like(illusia)
