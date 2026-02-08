@@ -43,8 +43,11 @@ class YandexMusic {
                 return my_wave;
             case 'liked':
                 this.#prevSelected = 'liked';
+                let j = 0;
+                let gen1 = this.next([...this.#liked],j)
                 let liked = setInterval(() => {
-                    console.log(`Playing ${this.next([...this.#liked],0)}`);
+                    if(j === this.#liked.size - 1) clearInterval(liked);
+                    console.log(`Playing ${gen1([...this.#liked],j).value?.name}`);
                 },1000)
                 return liked;
             default:
