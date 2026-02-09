@@ -116,7 +116,13 @@ class YandexMusic {
                         let res = this.like(i);
                         if(!res) throw new Error('Something went wrong try again');
                         return res;
-                    
+                    case 'play':
+                        while(this.#queue.length){
+                            clearInterval(this.#queue.pop());
+                        }
+                        setTimeout(() => {
+                            console.log(`Playing ${name}`);
+                        },1000);
                 }
                 break;
             }
